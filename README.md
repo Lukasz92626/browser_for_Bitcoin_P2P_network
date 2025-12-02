@@ -1,1 +1,1 @@
-# browser_for_Bitcoin_P2P_network
+# BitLab: a browser for the Bitcoin P2P network and its blockchain
