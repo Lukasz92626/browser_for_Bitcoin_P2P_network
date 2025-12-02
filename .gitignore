@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+.venv/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+# Logs
+*.log
+logs/
+log/
+
+# Bitcoin network data (peer lists, blocks, chainstate)
+peers.json
+peers.dat
+blockchain_cache/
+blocks/
+chainstate/
+database/
+*.db
+*.dat
+
+# Configuration files (user-specific)
+config.ini
+local_config.py
+.env
+.secrets
+
+# Test outputs
+test_output/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Documentation
+docs/_build/
