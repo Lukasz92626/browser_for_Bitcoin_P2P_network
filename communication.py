@@ -12,6 +12,8 @@ from commands.version import get_version
 from mode import Mode
 from utils import checksum_f, bytes_to_int, bytes_to_str, \
     bytes_to_hex_str, str_to_hex, count_payload
+from commands.addr_utils import is_sensible_addr, print_addr
+
 
 
 class Communication:
@@ -168,6 +170,24 @@ class Communication:
                             self.MODE = Mode.IDLE
                             a_list = self.addr.unpack_addresses(payload_hex)
                             self.addr.save(a_list)
+
+                            #for addr in a_list:
+                            #    print(addr)
+
+                            printed = set()
+
+                            for addr in a_list:
+                                if not is_sensible_addr(addr):
+                                    continue
+
+                                key = (addr.ip, addr.port)
+                                if key in printed:
+                                    continue
+
+                                printed.add(key)
+                                print_addr(addr)
+
+
 
                         if command_dec == "inv":
                             command = "inv"
