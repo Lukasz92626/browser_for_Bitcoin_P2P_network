@@ -42,6 +42,7 @@ class Address:
             'port': self.port
         }
 
+
 class Addr:
     def __init__(self):
         self.logger = logging.getLogger('bitcoin')
@@ -79,7 +80,6 @@ class Addr:
         # chosen = random.choice(addresses_8333[:min(50, len(addresses_8333))])
         chosen = random.choice(addresses_8333)
 
-
         return self.dict_to_node(chosen)
 
     def dict_to_node(self, addr_dict):
@@ -87,18 +87,28 @@ class Addr:
         ipv6_obj = IPv6Address(ipv6)
 
         if ipv6_obj.ipv4_mapped:
+            ipv4 = ipv6_obj.ipv4_mapped
+            last_two_blocks = f"{ipv4.packed[0]:02x}{ipv4.packed[1]:02x}:{ipv4.packed[2]:02x}{ipv4.packed[3]:02x}"
+            ipv6_full = "0000:0000:0000:0000:0000:ffff:" + last_two_blocks
             ipv4 = str(ipv6_obj.ipv4_mapped)
         else:
             ipv4 = None
+            ipv6_full = None
 
         return Node(
             host_v4=ipv4,
-            host_v6=ipv6,
+            host_v6=ipv6_full,
             port=addr_dict["port"]
         )
 
 
 if __name__ == '__main__':
-    s = 'e803123043690904000000000000260040404770590079d466778820402c2'
-    addr = Address(s)
-    print(str(addr))
+    s = {
+        "timestamp": "2026-01-25 23:42:57",
+        "services": "490c000000000000",
+        "ip": "::ffff:85.7.114.238",
+        "port": 8333
+    }
+    a = Addr()
+    n = a.dict_to_node(s)
+    print(n)

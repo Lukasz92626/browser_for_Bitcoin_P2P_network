@@ -34,7 +34,7 @@ def print_mode_options():
     print(f"8. back")
 
 def handle_menu():
-    is_cached = False
+    is_cached = True
     a = Addr()
     c = Communication(Node.from_dict(constants.node))
     client: socket.socket | None = None
