@@ -1,6 +1,7 @@
 import socket
 import logging
 import socket
+import struct
 
 from commands.addr import Addr
 from commands.getblocks import getblocks_message
@@ -65,6 +66,41 @@ class Communication:
                 client.close()
 
         return None
+
+    def log_decoded_details(self, payload_hex):
+        try:
+            data = bytes.fromhex(payload_hex)
+            if not data:
+                return
+
+            offset = 0
+            
+            count = data[offset]
+            offset += 1
+            self.logger.debug(f"[DECODED] Count: {count}")
+
+            for i in range(count):
+                if offset + 36 > len(data):
+                    break
+
+                type_val = struct.unpack("<I", data[offset:offset+4])[0]
+                offset += 4
+
+                type_str = "NIEZNANY"
+                if type_val == 1: type_str = "MSG_TX (Transakcja)"
+                elif type_val == 2: type_str = "MSG_BLOCK (Blok)"
+                elif type_val == 3: type_str = "MSG_FILTERED_BLOCK"
+                elif type_val == 4: type_str = "MSG_CMPCT_BLOCK"
+
+                hash_bytes = data[offset:offset+32]
+                offset += 32
+
+                readable_hash = hash_bytes[::-1].hex()
+
+                self.logger.debug(f"[DECODED] Element #{i+1}: Type={type_val} ({type_str}) | Hash={readable_hash}")
+
+        except Exception as e:
+            self.logger.error(f"Błąd podczas dekodowania payloadu: {e}")
 
     def send_version(self, client) -> None:
         version = bytes.fromhex(get_version(self.node))
@@ -232,17 +268,25 @@ class Communication:
                             self.MODE = Mode.IDLE
                             command = "getdata"
                             command_hex = str_to_hex(command, 12)
-                            payload_hex = "01" + self.inv.transaction.hash # jedna transakcja dlatego 01 varint
-                            size = count_payload(payload_hex, 4)
+
+                            payload_hex = "01" + self.inv.transaction.hash
+                            
+                            size_protocol = count_payload(payload_hex, 4)
                             checksum = checksum_f(payload_hex)
+
+                            real_size_int = len(payload_hex) // 2
 
                             self.logger.debug("+++++++++++++++++++++++++++++++++++++++++ getdata tx +++++++++++++++++++++++++++++++++++++++++\n")
                             self.logger.debug("command: " + command + "\n")
-                            self.logger.debug("size: " + str(size) + "\n")
+                            
+                            self.logger.debug("size: " + str(real_size_int) + " bytes\n")
+                            
                             self.logger.debug("checksum: " + str(checksum) + "\n")
                             self.logger.debug("payload: " + payload_hex + "\n")
 
-                            message = magic_bytes + command_hex + size + checksum + payload_hex
+                            self.log_decoded_details(payload_hex)
+                            self.logger.debug("\n")
+                            message = magic_bytes + command_hex + size_protocol + checksum + payload_hex
                             client.send(bytes.fromhex(message))
 
                         if self.MODE is Mode.GETDATA_BLOCK:
